@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hotel Guest Registration | Swan Solution Pvt. Ltd.</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 10px;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2f3640;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+    }
+    button[type="submit"] {
+      background-color: #44bd32;
+    }
+    button[type="reset"] {
+      background-color: #e84118;
+    }
+    #message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+    }
+    table, th, td {
+      border: 1px solid #dcdde1;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #273c75;
+      color: white;
+    }
+    #nodata {
+      text-align: center;
+      margin-top: 15px;
+      color: #888;
+      font-style: italic;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      table {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hotel Guest Registration Form</h1>
+
+    <form id="guestForm">
+      <label>Full Name:</label>
+      <input type="text" id="name" placeholder="Enter full name" required>
+
+      <label>Phone Number:</label>
+      <input type="text" id="phone" placeholder="10-digit number" required>
+
+      <label>Email Address:</label>
+      <input type="email" id="email" placeholder="Enter email" required>
+
+      <label>Aadhar Card Number:</label>
+      <input type="text" id="aadhar" placeholder="12-digit number" required>
+
+      <label>Check-in Date:</label>
+      <input type="date" id="checkin" required>
+
+      <label>Check-out Date:</label>
+      <input type="date" id="checkout" required>
+
+      <label>Purpose of Visit:</label>
+      <input type="text" id="purpose" placeholder="Business, Leisure, etc." required>
+
+      <div class="buttons">
+        <button type="submit">Submit</button>
+        <button type="reset">Reset</button>
+      </div>
+    </form>
+
+    <p id="message"></p>
+
+    <h2>Guest Submissions</h2>
+    <table id="guestTable">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Aadhar</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <p id="nodata"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("guestForm");
+    const message = document.getElementById("message");
+    const tableBody = document.getElementById("tableBody");
+    const noDataMsg = document.getElementById("nodata");
+
+    // Load existing data
+    function loadData() {
+      const guests = JSON.parse(localStorage.getItem("guests")) || [];
+      tableBody.innerHTML = "";
+      if (guests.length === 0) {
+        noDataMsg.textContent = "No data available.";
+      } else {
+        noDataMsg.textContent = "";
+        guests.forEach((g) => {
+          const row = `<tr>
+            <td>${g.name}</td>
+            <td>${g.phone}</td>
+            <td>${g.email}</td>
+            <td>${g.aadhar}</td>
+            <td>${g.checkin}</td>
+            <td>${g.checkout}</td>
+            <td>${g.purpose}</td>
+          </tr>`;
+          tableBody.innerHTML += row;
+        });
+      }
+    }
+
+    loadData();
+
+    // Handle form submit
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const aadhar = document.getElementById("aadhar").value.trim();
+      const checkin = document.getElementById("checkin").value;
+      const checkout = document.getElementById("checkout").value;
+      const purpose = document.getElementById("purpose").value.trim();
+
+      // Validation
+      if (!name || !phone || !email || !aadhar || !checkin || !checkout || !purpose) {
+        message.textContent = "All fields are required!";
+        message.style.color = "red";
+        return;
+      }
+
+      if (!/^\d{10}$/.test(phone)) {
+        message.textContent = "Phone number must be exactly 10 digits.";
+        message.style.color = "red";
+        return;
+      }
+
+      if (!/^\d{12}$/.test(aadhar)) {
+        message.textContent = "Aadhar number must be exactly 12 digits.";
+        message.style.color = "red";
+        return;
+      }
+
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        message.textContent = "Invalid email format.";
+        message.style.color = "red";
+        return;
+      }
+
+      const guest = { name, phone, email, aadhar, checkin, checkout, purpose };
+      let guests = JSON.parse(localStorage.getItem("guests")) || [];
+      guests.push(guest);
+      localStorage.setItem("guests", JSON.stringify(guests));
+
+      message.textContent = "Data saved successfully!";
+      message.style.color = "green";
+      form.reset();
+      loadData();
+    });
+  </script>
+</body>
+</html>
